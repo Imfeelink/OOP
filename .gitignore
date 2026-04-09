@@ -1,0 +1,15 @@
+# Сборка и вывод
+[Bb]in/
+[Oo]bj/
+
+# Пользовательские настройки Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Другие временные файлы
+*.pdb
+*.exe
+*.dll
