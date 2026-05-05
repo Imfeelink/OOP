@@ -1,0 +1,32 @@
+{
+  "Users": [
+    {
+      "$type": "Lab_1.Models.Admin, Lab_1",
+      "Role": 2,
+      "Id": "5ebfafeb-7c33-466f-b404-4768d06f5d7f",
+      "Login": "admin",
+      "PasswordHash": "admin"
+    }
+  ],
+  "Accounts": [],
+  "Banks": [
+    {
+      "Id": "7b5c6590-ae47-46aa-beff-41e1d288779c",
+      "Name": "СберБанк"
+    },
+    {
+      "Id": "828925e0-0cc1-406c-85b7-eef50bd40581",
+      "Name": "Тинькофф"
+    }
+  ],
+  "Companies": [
+    {
+      "Id": "55b650ed-e850-4c92-b233-21bbeac72275",
+      "Name": "Яндекс",
+      "Type": null,
+      "IsSalaryProjectRequested": false,
+      "IsSalaryProjectApproved": false
+    }
+  ],
+  "Transactions": []
+}

@@ -65,8 +65,7 @@ namespace Lab_1.ViewModels
                     }
                     else if (user is Client)
                     {
-                        // _mainViewModel.CurrentViewModel = new ClientViewModel(_mainViewModel);
-                        MessageBox.Show("Вы вошли как Клиент");
+                         _mainViewModel.CurrentViewModel = new ClientViewModel(_mainViewModel);
                     }
                 }
                 else

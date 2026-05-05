@@ -146,4 +146,62 @@ namespace Lab_1.Commands
             _account.IsBlocked = !_account.IsBlocked; 
         }
     }
+
+    public class OpenAccountAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => $"Клиент {InitiatorLogin} открыл счет/вклад: {_account.Id}";
+        public string InitiatorLogin { get; }
+
+        private readonly BankAccount _account;
+        private readonly JsonDataContext _context;
+
+        public OpenAccountAction(BankAccount account, string initiatorLogin, JsonDataContext context)
+        {
+            _account = account;
+            InitiatorLogin = initiatorLogin;
+            _context = context;
+        }
+
+        public void Execute()
+        {
+            _context.Accounts.Add(_account);
+        }
+
+        public void Undo()
+        {
+            _context.Accounts.Remove(_account); 
+        }
+    }
+
+    public class CloseAccountAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => $"Клиент {InitiatorLogin} закрыл счет/вклад: {_account.Id}";
+        public string InitiatorLogin { get; }
+
+        private readonly BankAccount _account;
+        private readonly JsonDataContext _context;
+
+        public CloseAccountAction(BankAccount account, string initiatorLogin, JsonDataContext context)
+        {
+            _account = account;
+            InitiatorLogin = initiatorLogin;
+            _context = context;
+        }
+
+        public void Execute()
+        {
+            if (_account.Balance > 0)
+                throw new System.Exception("Нельзя закрыть счет с положительным балансом!");
+            _context.Accounts.Remove(_account);
+        }
+
+        public void Undo()
+        {
+            _context.Accounts.Add(_account); 
+        }
+    }
 }
