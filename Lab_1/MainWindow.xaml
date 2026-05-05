@@ -148,6 +148,47 @@
                                 </ListView>
                             </TabItem>
 
+                            <TabItem Header="Предприятия">
+                                <Grid Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Список предприятий -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <TextBlock Text="Компании (Зарплатные проекты):" FontWeight="Bold"/>
+                                        <ListView ItemsSource="{Binding AllCompanies}" SelectedItem="{Binding SelectedCompany}" Height="150" Margin="0,5,0,10">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="150"/>
+                                                    <GridViewColumn Header="Заявка?" DisplayMemberBinding="{Binding IsSalaryProjectRequested}" Width="70"/>
+                                                    <GridViewColumn Header="Одобрен?" DisplayMemberBinding="{Binding IsSalaryProjectApproved}" Width="70"/>
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                        <Button Content="Одобрить заявку проекта" Command="{Binding ApproveSalaryProjectCommand}" Height="30" Background="#FFB2EBB2"/>
+                                    </StackPanel>
+
+                                    <!-- Список клиентов -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Все клиенты системы (Найм/Увольнение):" FontWeight="Bold"/>
+                                        <ListView ItemsSource="{Binding AllClients}" SelectedItem="{Binding SelectedEmployee}" Height="150" Margin="0,5,0,10">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" Width="100"/>
+                                                    <GridViewColumn Header="ID Компании" DisplayMemberBinding="{Binding CompanyId}" Width="200"/>
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Устроить в выбранную комп." Command="{Binding AddEmployeeCommand}" Height="30" Width="170" Margin="0,0,10,0"/>
+                                            <Button Content="Уволить" Command="{Binding RemoveEmployeeCommand}" Height="30" Width="100" Background="#FFFFC5C5"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </TabItem>
+
                         </TabControl>
                     </Grid>
                 </DataTemplate>
@@ -269,21 +310,37 @@
                                 </Grid>
                             </TabItem>
 
-                            <TabItem Header="Предприятия">
+                            <!-- Вкладка 3: Предприятия -->
+                            <TabItem Header="Предприятия и Зарплата">
                                 <Grid Margin="10">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="Доступные предприятия:" FontWeight="Bold" Margin="0,0,0,10"/>
-                                    <ListView Grid.Row="1" ItemsSource="{Binding AllCompanies}">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="250"/>
-                                                <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="200"/>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="350"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                        <TextBlock Text="Доступные предприятия:" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <ListView ItemsSource="{Binding AllCompanies}" SelectedItem="{Binding SelectedCompany}" Height="200" Margin="0,0,0,10">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="150"/>
+                                                    <GridViewColumn Header="ЗП Проект заявлен?" DisplayMemberBinding="{Binding IsSalaryProjectRequested}" Width="130"/>
+                                                    <GridViewColumn Header="ЗП Проект одобрен?" DisplayMemberBinding="{Binding IsSalaryProjectApproved}" Width="130"/>
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                        <Button Content="Подать заявку на ЗП проект от выбранного предприятия" Command="{Binding RequestSalaryProjectCommand}" Height="35"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Background="#FFF1F1F1" Margin="10" />
+                                    <StackPanel Grid.Column="1" Margin="20">
+                                        <TextBlock Text="Получение зарплаты" FontSize="16" FontWeight="Bold" Margin="0,0,0,20"/>
+                                        <TextBlock Text="Выберите ВАШ счет для зачисления:" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                        <ComboBox ItemsSource="{Binding MyAccounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="Id" Margin="0,0,0,20"/>
+
+                                        <Button Content="Получить зарплату" Command="{Binding ReceiveSalaryCommand}" Height="40" Background="#FFB2EBB2" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="(Доступно только если менеджер устроил вас в компанию с активным зарплатным проектом)" Foreground="Gray" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                    </StackPanel>
                                 </Grid>
                             </TabItem>
 

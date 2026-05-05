@@ -15,76 +15,111 @@ namespace Lab_1.ViewModels
         public ObservableCollection<BankAccount> AllAccounts { get; set; }
         public ObservableCollection<TransactionRecord> AllTransactions { get; set; }
 
+        // Новые коллекции для предприятий
+        public ObservableCollection<Company> AllCompanies { get; set; }
+        public ObservableCollection<Client> AllClients { get; set; } // Все подтвержденные клиенты для найма
+
         private Client _selectedClient;
-        public Client SelectedClient
-        {
-            get => _selectedClient;
-            set { _selectedClient = value; OnPropertyChanged(); }
-        }
+        public Client SelectedClient { get => _selectedClient; set { _selectedClient = value; OnPropertyChanged(); } }
 
         private BankAccount _selectedAccount;
-        public BankAccount SelectedAccount
-        {
-            get => _selectedAccount;
-            set { _selectedAccount = value; OnPropertyChanged(); }
-        }
+        public BankAccount SelectedAccount { get => _selectedAccount; set { _selectedAccount = value; OnPropertyChanged(); } }
+
+        private Company _selectedCompany;
+        public Company SelectedCompany { get => _selectedCompany; set { _selectedCompany = value; OnPropertyChanged(); } }
+
+        private Client _selectedEmployee;
+        public Client SelectedEmployee { get => _selectedEmployee; set { _selectedEmployee = value; OnPropertyChanged(); } }
 
         public ICommand ApproveClientCommand { get; }
+        public ICommand RejectClientCommand { get; }
         public ICommand ToggleBlockCommand { get; }
         public ICommand SkipMonthCommand { get; }
         public ICommand LogoutCommand { get; }
-        public ICommand RejectClientCommand { get; }
+
+        // Новые команды
+        public ICommand AddEmployeeCommand { get; }
+        public ICommand RemoveEmployeeCommand { get; }
+        public ICommand ApproveSalaryProjectCommand { get; }
 
         public ManagerViewModel(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
 
-            ApproveClientCommand = new RelayCommand(ExecuteApproveClient, CanExecuteApproveClient);
-            ToggleBlockCommand = new RelayCommand(ExecuteToggleBlock, CanExecuteToggleBlock);
+            ApproveClientCommand = new RelayCommand(ExecuteApproveClient, p => SelectedClient != null);
+            RejectClientCommand = new RelayCommand(ExecuteRejectClient, p => SelectedClient != null);
+            ToggleBlockCommand = new RelayCommand(ExecuteToggleBlock, p => SelectedAccount != null);
             SkipMonthCommand = new RelayCommand(ExecuteSkipMonth);
             LogoutCommand = new RelayCommand(ExecuteLogout);
-            RejectClientCommand = new RelayCommand(ExecuteRejectClient, CanExecuteApproveClient);
+
+            AddEmployeeCommand = new RelayCommand(ExecuteAddEmployee, p => SelectedCompany != null && SelectedEmployee != null);
+            RemoveEmployeeCommand = new RelayCommand(ExecuteRemoveEmployee, p => SelectedEmployee != null && SelectedEmployee.CompanyId != null);
+            ApproveSalaryProjectCommand = new RelayCommand(ExecuteApproveSalaryProject, p => SelectedCompany != null && SelectedCompany.IsSalaryProjectRequested);
 
             RefreshData();
         }
-        
-        //метод для обновление данных на экране
+
         private void RefreshData()
         {
-            var unapproved = _mainViewModel.Context.Users.OfType<Client>().Where(c => !c.IsApproved).ToList();
-            UnapprovedClients = new ObservableCollection<Client>(unapproved);
-            OnPropertyChanged(nameof(UnapprovedClients));
-
+            UnapprovedClients = new ObservableCollection<Client>(_mainViewModel.Context.Users.OfType<Client>().Where(c => !c.IsApproved));
+            AllClients = new ObservableCollection<Client>(_mainViewModel.Context.Users.OfType<Client>().Where(c => c.IsApproved));
             AllAccounts = new ObservableCollection<BankAccount>(_mainViewModel.Context.Accounts);
-            OnPropertyChanged(nameof(AllAccounts));
-
             AllTransactions = new ObservableCollection<TransactionRecord>(_mainViewModel.Context.Transactions);
+            AllCompanies = new ObservableCollection<Company>(_mainViewModel.Context.Companies);
+
+            OnPropertyChanged(nameof(UnapprovedClients));
+            OnPropertyChanged(nameof(AllClients));
+            OnPropertyChanged(nameof(AllAccounts));
             OnPropertyChanged(nameof(AllTransactions));
+            OnPropertyChanged(nameof(AllCompanies));
         }
 
-        private bool CanExecuteApproveClient(object parameter) => SelectedClient != null;
         private void ExecuteApproveClient(object parameter)
         {
             var action = new ApproveClientAction(SelectedClient, _mainViewModel.AuthService.CurrentUser.Login);
             _mainViewModel.ActionManager.ExecuteAction(action);
-
-            MessageBox.Show($"Клиент {SelectedClient.Login} успешно одобрен!");
             RefreshData();
         }
 
-        private bool CanExecuteToggleBlock(object parameter) => SelectedAccount != null;
+        private void ExecuteRejectClient(object parameter)
+        {
+            var action = new RejectClientAction(SelectedClient, _mainViewModel.AuthService.CurrentUser.Login, _mainViewModel.Context);
+            _mainViewModel.ActionManager.ExecuteAction(action);
+            RefreshData();
+        }
+
         private void ExecuteToggleBlock(object parameter)
         {
             var action = new ToggleAccountBlockAction(SelectedAccount, _mainViewModel.AuthService.CurrentUser.Login);
             _mainViewModel.ActionManager.ExecuteAction(action);
-
             RefreshData();
         }
 
         private void ExecuteSkipMonth(object parameter)
         {
-            _mainViewModel.BankService.SkipMonth(); 
-            MessageBox.Show("Прошел 1 месяц. Проценты по вкладам начислены!");
+            _mainViewModel.BankService.SkipMonth();
+            MessageBox.Show("Прошел 1 месяц. Проценты начислены!");
+            RefreshData();
+        }
+
+        private void ExecuteAddEmployee(object parameter)
+        {
+            var action = new ChangeEmployeeCompanyAction(SelectedEmployee, SelectedCompany.Id, _mainViewModel.AuthService.CurrentUser.Login);
+            _mainViewModel.ActionManager.ExecuteAction(action);
+            RefreshData();
+        }
+
+        private void ExecuteRemoveEmployee(object parameter)
+        {
+            var action = new ChangeEmployeeCompanyAction(SelectedEmployee, null, _mainViewModel.AuthService.CurrentUser.Login);
+            _mainViewModel.ActionManager.ExecuteAction(action);
+            RefreshData();
+        }
+
+        private void ExecuteApproveSalaryProject(object parameter)
+        {
+            var action = new UpdateSalaryProjectAction(SelectedCompany, true, true, _mainViewModel.AuthService.CurrentUser.Login);
+            _mainViewModel.ActionManager.ExecuteAction(action);
             RefreshData();
         }
 
@@ -92,15 +127,6 @@ namespace Lab_1.ViewModels
         {
             _mainViewModel.AuthService.Logout();
             _mainViewModel.CurrentViewModel = new AuthViewModel(_mainViewModel);
-        }
-
-        private void ExecuteRejectClient(object parameter)
-        {
-            var action = new RejectClientAction(SelectedClient, _mainViewModel.AuthService.CurrentUser.Login, _mainViewModel.Context);
-            _mainViewModel.ActionManager.ExecuteAction(action);
-
-            MessageBox.Show($"Регистрация клиента {SelectedClient.Login} отклонена.");
-            RefreshData();
         }
     }
 }

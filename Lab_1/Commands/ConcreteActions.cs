@@ -233,4 +233,105 @@ namespace Lab_1.Commands
             _context.Users.Add(_client);
         }
     }
+
+    public class ChangeEmployeeCompanyAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => _newCompanyId != null
+            ? $"Менеджер {InitiatorLogin} устроил клиента {_client.Login} в компанию"
+            : $"Менеджер {InitiatorLogin} уволил клиента {_client.Login}";
+        public string InitiatorLogin { get; }
+
+        private readonly Client _client;
+        private readonly string _newCompanyId;
+        private readonly string _oldCompanyId;
+
+        public ChangeEmployeeCompanyAction(Client client, string newCompanyId, string initiatorLogin)
+        {
+            _client = client;
+            _newCompanyId = newCompanyId;
+            _oldCompanyId = client.CompanyId;
+            InitiatorLogin = initiatorLogin;
+        }
+
+        public void Execute() => _client.CompanyId = _newCompanyId;
+        public void Undo() => _client.CompanyId = _oldCompanyId;
+    }
+
+    public class UpdateSalaryProjectAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => $"Изменен статус зарплатного проекта для: {_company.Name}";
+        public string InitiatorLogin { get; }
+
+        private readonly Company _company;
+        private readonly bool _newRequestState;
+        private readonly bool _newApproveState;
+        private readonly bool _oldRequestState;
+        private readonly bool _oldApproveState;
+
+        public UpdateSalaryProjectAction(Company company, bool isRequested, bool isApproved, string initiatorLogin)
+        {
+            _company = company;
+            _newRequestState = isRequested;
+            _newApproveState = isApproved;
+            _oldRequestState = company.IsSalaryProjectRequested;
+            _oldApproveState = company.IsSalaryProjectApproved;
+            InitiatorLogin = initiatorLogin;
+        }
+
+        public void Execute()
+        {
+            _company.IsSalaryProjectRequested = _newRequestState;
+            _company.IsSalaryProjectApproved = _newApproveState;
+        }
+
+        public void Undo()
+        {
+            _company.IsSalaryProjectRequested = _oldRequestState;
+            _company.IsSalaryProjectApproved = _oldApproveState;
+        }
+    }
+
+    public class ReceiveSalaryAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => $"Клиент {InitiatorLogin} получил зарплату на счет {_account.Id}";
+        public string InitiatorLogin { get; }
+
+        private readonly BankAccount _account;
+        private readonly decimal _amount;
+        private readonly JsonDataContext _context;
+        private TransactionRecord _record;
+
+        public ReceiveSalaryAction(BankAccount account, decimal amount, string initiatorLogin, JsonDataContext context)
+        {
+            _account = account;
+            _amount = amount;
+            InitiatorLogin = initiatorLogin;
+            _context = context;
+        }
+
+        public void Execute()
+        {
+            _account.Deposit(_amount);
+            _record = new TransactionRecord
+            {
+                FromAccountId = "ПРЕДПРИЯТИЕ",
+                ToAccountId = _account.Id,
+                Amount = _amount,
+                Description = "Зарплата"
+            };
+            _context.Transactions.Add(_record);
+        }
+
+        public void Undo()
+        {
+            _account.Withdraw(_amount); 
+            if (_record != null) _context.Transactions.Remove(_record);
+        }
+    }
 }
