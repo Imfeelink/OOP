@@ -1,5 +1,6 @@
 ﻿using System;
 using Lab_1.Models;
+using Newtonsoft.Json;
 
 namespace Lab_1.Models
 {
@@ -8,8 +9,14 @@ namespace Lab_1.Models
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string ClientId { get; set; }
         public string BankId { get; set; }
+
+        [JsonProperty]
         public decimal Balance { get; protected set; } 
         public bool IsBlocked { get; set; }
+        [JsonIgnore]
+        public string AccountType => this is DepositAccount
+            ? $"Вклад ({((DepositAccount)this).InterestRate}%)"
+            : "Обычный счет";
 
         public BankAccount(string clientId, string bankId, decimal initialBalance = 0)
         {

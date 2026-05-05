@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using System.Linq;
 using Lab_1.Models;
 
 namespace Lab_1.ViewModels
@@ -84,6 +85,12 @@ namespace Lab_1.ViewModels
             if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Для регистрации заполните логин и пароль!";
+                return;
+            }
+
+            if (_mainViewModel.Context.Users.Any(u => u.Login == Login))
+            {
+                ErrorMessage = "Пользователь с таким логином уже существует!";
                 return;
             }
 

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewmodels="clr-namespace:Lab_1.ViewModels"
-        Title="Управление финансовой системой" Height="450" Width="600" WindowStartupLocation="CenterScreen">
+        Title="Управление финансовой системой" Height="600" Width="900" WindowStartupLocation="CenterScreen">
 
     <!--подключение mainviewmodel к окну-->
     <Window.DataContext>
@@ -91,7 +91,10 @@
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
-                                    <Button Grid.Row="1" Content="Одобрить выбранного клиента" Command="{Binding ApproveClientCommand}" Height="30" Width="220"/>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Content="Одобрить" Command="{Binding ApproveClientCommand}" Height="30" Width="150" Background="#FFB2EBB2" Margin="0,0,10,0"/>
+                                        <Button Content="Отклонить" Command="{Binding RejectClientCommand}" Height="30" Width="150" Background="#FFFFC5C5"/>
+                                    </StackPanel>
                                 </Grid>
                             </TabItem>
 
@@ -104,7 +107,13 @@
                                     <ListView Grid.Row="0" ItemsSource="{Binding AllAccounts}" SelectedItem="{Binding SelectedAccount}" Margin="0,0,0,10">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="ID Счета" DisplayMemberBinding="{Binding Id}" Width="250"/>
+                                                <GridViewColumn Header="ID Счета" Width="280">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox Text="{Binding Id, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
                                                 <GridViewColumn Header="Баланс" DisplayMemberBinding="{Binding Balance}" Width="100"/>
                                                 <GridViewColumn Header="Заблокирован?" DisplayMemberBinding="{Binding IsBlocked}" Width="100"/>
                                             </GridView>
@@ -119,8 +128,20 @@
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding Timestamp}" Width="140"/>
-                                            <GridViewColumn Header="Откуда" DisplayMemberBinding="{Binding FromAccountId}" Width="200"/>
-                                            <GridViewColumn Header="Куда" DisplayMemberBinding="{Binding ToAccountId}" Width="200"/>
+                                            <GridViewColumn Header="Откуда" Width="220">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBox Text="{Binding FromAccountId, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Куда" Width="220">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBox Text="{Binding ToAccountId, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
                                             <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="80"/>
                                         </GridView>
                                     </ListView.View>
@@ -143,8 +164,10 @@
                             <Button Content="Выйти" Command="{Binding LogoutCommand}" HorizontalAlignment="Right" Width="80" Padding="5"/>
                         </Grid>
 
+                        <!-- Вкладки Клиента -->
                         <TabControl Grid.Row="1">
 
+                            <!-- Вкладка 1: Мои Счета -->
                             <TabItem Header="Мои счета и вклады">
                                 <Grid Margin="5">
                                     <Grid.RowDefinitions>
@@ -153,72 +176,115 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                                    <!-- Панель кнопок -->
+                                    <WrapPanel Grid.Row="0" Margin="0,0,0,10" VerticalAlignment="Center">
                                         <TextBlock Text="Выберите банк:" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox ItemsSource="{Binding AllBanks}" SelectedItem="{Binding SelectedBank}" DisplayMemberPath="Name" Width="150" Margin="0,0,10,0"/>
                                         <Button Content="Открыть счет" Command="{Binding OpenAccountCommand}" Padding="5" Margin="0,0,10,0"/>
                                         <Button Content="Открыть вклад (10%)" Command="{Binding OpenDepositCommand}" Padding="5"/>
-                                    </StackPanel>
+                                    </WrapPanel>
 
+                                    <!-- Таблица счетов -->
                                     <ListView Grid.Row="1" ItemsSource="{Binding MyAccounts}" SelectedItem="{Binding SelectedAccount}" Margin="0,0,0,10">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="ID (Скопируйте для перевода)" DisplayMemberBinding="{Binding Id}" Width="250"/>
-                                                <GridViewColumn Header="Баланс" DisplayMemberBinding="{Binding Balance}" Width="80"/>
-                                                <GridViewColumn Header="Тип" Width="100">
+                                                <GridViewColumn Header="ID" Width="280">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={x:Null}}"/>
+                                                            <TextBox Text="{Binding Id, Mode=OneWay}" 
+                                                                IsReadOnly="True" 
+                                                                BorderThickness="0" 
+                                                                Background="Transparent" 
+                                                                VerticalAlignment="Center"/>
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
+                                                <GridViewColumn Header="Баланс" DisplayMemberBinding="{Binding Balance}" Width="100"/>
+                                                <GridViewColumn Header="Тип" DisplayMemberBinding="{Binding AccountType}" Width="150"/>
                                                 <GridViewColumn Header="Заблокирован?" DisplayMemberBinding="{Binding IsBlocked}" Width="100"/>
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
-                                    <Button Grid.Row="2" Content="Закрыть выбранный счет (баланс должен быть 0)" Command="{Binding CloseAccountCommand}" Height="30" Width="300" HorizontalAlignment="Left" Background="#FFFFC5C5"/>
+
+                                    <Button Grid.Row="2" Content="Закрыть выбранный счет (баланс должен быть 0)" Command="{Binding CloseAccountCommand}" Height="35" Width="300" HorizontalAlignment="Left" Background="#FFFFC5C5"/>
                                 </Grid>
                             </TabItem>
 
+                            <!-- Вкладка 2: Переводы -->
                             <TabItem Header="Переводы">
-                                <StackPanel Margin="10" Width="300" HorizontalAlignment="Left">
-                                    <TextBlock Text="Откуда (Ваш счет):"/>
-                                    <ComboBox ItemsSource="{Binding MyAccounts}" SelectedItem="{Binding SelectedFromAccount}" DisplayMemberPath="Id" Margin="0,0,0,10"/>
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="350"/>
+                                        <!-- Левая колонка для формы перевода -->
+                                        <ColumnDefinition Width="*"/>
+                                        <!-- Правая колонка для истории -->
+                                    </Grid.ColumnDefinitions>
 
-                                    <TextBlock Text="Куда (ID счета получателя):"/>
-                                    <TextBox Text="{Binding ToAccountId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                    <!-- Форма перевода -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                        <TextBlock Text="Новый перевод" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Сумма:"/>
-                                    <TextBox Text="{Binding TransferAmount, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Откуда (Ваш счет):"/>
+                                        <ComboBox ItemsSource="{Binding MyAccounts}" SelectedItem="{Binding SelectedFromAccount}" DisplayMemberPath="Id" Margin="0,0,0,10"/>
 
-                                    <Button Content="Выполнить перевод" Command="{Binding TransferCommand}" Height="30" Background="#FFB2EBB2"/>
+                                        <TextBlock Text="Куда (ID счета получателя):"/>
+                                        <TextBox Text="{Binding ToAccountId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Ваша история операций:" FontWeight="Bold" Margin="0,20,0,5"/>
-                                    <ListView ItemsSource="{Binding MyTransactions}" Height="150">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Header="Откуда" DisplayMemberBinding="{Binding FromAccountId}" Width="120"/>
-                                                <GridViewColumn Header="Куда" DisplayMemberBinding="{Binding ToAccountId}" Width="120"/>
-                                                <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="60"/>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
-                                </StackPanel>
+                                        <TextBlock Text="Сумма:"/>
+                                        <TextBox Text="{Binding TransferAmount, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+
+                                        <Button Content="Выполнить перевод" Command="{Binding TransferCommand}" Height="35" Background="#FFB2EBB2" FontSize="14"/>
+                                    </StackPanel>
+
+                                    <!-- История операций -->
+                                    <Grid Grid.Column="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="Ваша история операций:" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <ListView Grid.Row="1" ItemsSource="{Binding MyTransactions}">
+                                            <ListView.View>
+                                                <GridView>
+                                                    <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding Timestamp}" Width="130"/>
+                                                    <GridViewColumn Header="Откуда" Width="200">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBox Text="{Binding FromAccountId, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    <GridViewColumn Header="Куда" Width="200">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBox Text="{Binding ToAccountId, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="80"/>
+                                                </GridView>
+                                            </ListView.View>
+                                        </ListView>
+                                    </Grid>
+                                </Grid>
                             </TabItem>
 
                             <TabItem Header="Предприятия">
-                                <StackPanel Margin="10">
-                                    <TextBlock Text="Доступные предприятия:" FontWeight="Bold"/>
-                                    <ListView ItemsSource="{Binding AllCompanies}" Height="150" Margin="0,5,0,10">
+                                <Grid Margin="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Доступные предприятия:" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    <ListView Grid.Row="1" ItemsSource="{Binding AllCompanies}">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="200"/>
+                                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="250"/>
                                                 <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="200"/>
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
-                                    <TextBlock Text="(Логика зарплатных проектов в разработке...)" Foreground="Gray"/>
-                                </StackPanel>
+                                </Grid>
                             </TabItem>
 
                         </TabControl>

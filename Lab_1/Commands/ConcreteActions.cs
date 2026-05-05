@@ -204,4 +204,33 @@ namespace Lab_1.Commands
             _context.Accounts.Add(_account); 
         }
     }
+
+    public class RejectClientAction : ISystemAction
+    {
+        public string ActionId { get; } = Guid.NewGuid().ToString();
+        public DateTime Timestamp { get; } = DateTime.Now;
+        public string LogMessage => $"Менеджер {InitiatorLogin} отклонил регистрацию: {_client.Login}";
+        public string InitiatorLogin { get; }
+
+        private readonly Client _client;
+        private readonly JsonDataContext _context;
+
+        public RejectClientAction(Client client, string initiatorLogin, JsonDataContext context)
+        {
+            _client = client;
+            InitiatorLogin = initiatorLogin;
+            _context = context;
+        }
+
+        public void Execute()
+        {
+            _context.Users.Remove(_client);
+        }
+
+        public void Undo()
+        {
+            _client.IsApproved = false;
+            _context.Users.Add(_client);
+        }
+    }
 }

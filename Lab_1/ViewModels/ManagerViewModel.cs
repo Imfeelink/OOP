@@ -33,6 +33,7 @@ namespace Lab_1.ViewModels
         public ICommand ToggleBlockCommand { get; }
         public ICommand SkipMonthCommand { get; }
         public ICommand LogoutCommand { get; }
+        public ICommand RejectClientCommand { get; }
 
         public ManagerViewModel(MainViewModel mainViewModel)
         {
@@ -42,6 +43,7 @@ namespace Lab_1.ViewModels
             ToggleBlockCommand = new RelayCommand(ExecuteToggleBlock, CanExecuteToggleBlock);
             SkipMonthCommand = new RelayCommand(ExecuteSkipMonth);
             LogoutCommand = new RelayCommand(ExecuteLogout);
+            RejectClientCommand = new RelayCommand(ExecuteRejectClient, CanExecuteApproveClient);
 
             RefreshData();
         }
@@ -90,6 +92,15 @@ namespace Lab_1.ViewModels
         {
             _mainViewModel.AuthService.Logout();
             _mainViewModel.CurrentViewModel = new AuthViewModel(_mainViewModel);
+        }
+
+        private void ExecuteRejectClient(object parameter)
+        {
+            var action = new RejectClientAction(SelectedClient, _mainViewModel.AuthService.CurrentUser.Login, _mainViewModel.Context);
+            _mainViewModel.ActionManager.ExecuteAction(action);
+
+            MessageBox.Show($"Регистрация клиента {SelectedClient.Login} отклонена.");
+            RefreshData();
         }
     }
 }
