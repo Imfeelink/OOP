@@ -298,15 +298,14 @@ namespace Lab_1.Commands
 
         private readonly BankAccount _account;
         private readonly decimal _amount;
+        private readonly string _companyName; 
         private readonly JsonDataContext _context;
         private TransactionRecord _record;
 
-        public ReceiveSalaryAction(BankAccount account, decimal amount, string initiatorLogin, JsonDataContext context)
+        public ReceiveSalaryAction(BankAccount account, decimal amount, string companyName, string initiatorLogin, JsonDataContext context)
         {
-            _account = account;
-            _amount = amount;
-            InitiatorLogin = initiatorLogin;
-            _context = context;
+            _account = account; _amount = amount; _companyName = companyName;
+            InitiatorLogin = initiatorLogin; _context = context;
         }
 
         public void Execute()
@@ -314,7 +313,7 @@ namespace Lab_1.Commands
             _account.Deposit(_amount, force: true);
             _record = new TransactionRecord
             {
-                FromAccountId = "ПРЕДПРИЯТИЕ",
+                FromAccountId = _companyName, 
                 ToAccountId = _account.Id,
                 Amount = _amount,
                 Description = "Зарплата"
@@ -324,7 +323,7 @@ namespace Lab_1.Commands
 
         public void Undo()
         {
-            _account.Withdraw(_amount, force: true); 
+            _account.Withdraw(_amount, force: true);
             if (_record != null) _context.Transactions.Remove(_record);
         }
     }

@@ -16,6 +16,7 @@ namespace Lab_1.Models
 
         public bool IsSalaryProjectRequested { get; set; } = false;
         public bool IsSalaryProjectApproved { get; set; } = false;
+        public decimal SalaryAmount { get; set; } = 50000m;
     }
 
     public class TransactionRecord

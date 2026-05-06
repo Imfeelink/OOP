@@ -152,10 +152,11 @@ namespace Lab_1.ViewModels
             var myComp = _mainViewModel.Context.Companies.FirstOrDefault(c => c.Id == _currentClient.CompanyId);
             if (myComp == null || !myComp.IsSalaryProjectApproved) { MessageBox.Show("У вашего предприятия нет одобренного зарплатного проекта!"); return; }
 
-            var action = new ReceiveSalaryAction(SelectedAccount, 50000m, _currentClient.Login, _mainViewModel.Context);
+            var action = new ReceiveSalaryAction(SelectedAccount, myComp.SalaryAmount, myComp.Name, _currentClient.Login, _mainViewModel.Context);
             _mainViewModel.ActionManager.ExecuteAction(action);
+
             RefreshData();
-            MessageBox.Show("Зарплата 50 000 зачислена на выбранный счет!");
+            MessageBox.Show($"Зарплата в размере {myComp.SalaryAmount} от компании {myComp.Name} успешно зачислена!");
         }
 
         private void ExecuteLogout(object parameter)
