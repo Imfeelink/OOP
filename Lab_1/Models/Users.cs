@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Lab_1.Models
 {
@@ -16,6 +17,8 @@ namespace Lab_1.Models
         public override Role Role => Role.Client;
         public bool IsApproved { get; set; } = false; 
         public string CompanyId { get; set; }
+        [JsonIgnore]
+        public string DisplayCompanyName { get; set; } = "Не трудоустроен";
     }
 
     public class Manager : User

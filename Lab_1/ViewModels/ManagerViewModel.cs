@@ -62,7 +62,15 @@ namespace Lab_1.ViewModels
         private void RefreshData()
         {
             UnapprovedClients = new ObservableCollection<Client>(_mainViewModel.Context.Users.OfType<Client>().Where(c => !c.IsApproved));
-            AllClients = new ObservableCollection<Client>(_mainViewModel.Context.Users.OfType<Client>().Where(c => c.IsApproved));
+ 
+            var approvedClients = _mainViewModel.Context.Users.OfType<Client>().Where(c => c.IsApproved).ToList();
+            foreach (var c in approvedClients)
+            {
+                var comp = _mainViewModel.Context.Companies.FirstOrDefault(x => x.Id == c.CompanyId);
+                c.DisplayCompanyName = comp != null ? comp.Name : "Не трудоустроен";
+            }
+
+            AllClients = new ObservableCollection<Client>(approvedClients);
             AllAccounts = new ObservableCollection<BankAccount>(_mainViewModel.Context.Accounts);
             AllTransactions = new ObservableCollection<TransactionRecord>(_mainViewModel.Context.Transactions);
             AllCompanies = new ObservableCollection<Company>(_mainViewModel.Context.Companies);

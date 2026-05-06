@@ -24,7 +24,28 @@ namespace Lab_1.ViewModels
         public Company SelectedCompany { get; set; } 
 
         public string ToAccountId { get; set; }
-        public decimal TransferAmount { get; set; }
+
+        private string _transferAmount;
+        public string TransferAmount
+        {
+            get => _transferAmount;
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    _transferAmount = value;
+                    OnPropertyChanged();
+                    return;
+                }
+
+                if (System.Text.RegularExpressions.Regex.IsMatch(value, @"^[0-9]*([.,][0-9]{0,2})?$"))
+                {
+                    _transferAmount = value;
+                }
+
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand OpenAccountCommand { get; }
         public ICommand OpenDepositCommand { get; }
@@ -93,13 +114,23 @@ namespace Lab_1.ViewModels
 
         private void ExecuteTransfer(object parameter)
         {
-            if (SelectedFromAccount == null || string.IsNullOrWhiteSpace(ToAccountId) || TransferAmount <= 0) return;
+            if (SelectedFromAccount == null || string.IsNullOrWhiteSpace(ToAccountId) || string.IsNullOrWhiteSpace(TransferAmount)) return;
+
+            // Превращаем точку в запятую (зависит от настроек Windows)
+            string amountStr = TransferAmount.Replace(".", ",");
+            if (!decimal.TryParse(amountStr, out decimal amount) || amount <= 0)
+            {
+                MessageBox.Show("Введите корректную сумму перевода больше нуля (например: 18,65)");
+                return;
+            }
+            amount = System.Math.Round(amount, 2); 
+
             var toAccount = _mainViewModel.Context.Accounts.FirstOrDefault(a => a.Id == ToAccountId);
             if (toAccount == null) { MessageBox.Show("Счет получателя не найден!"); return; }
             try
             {
-                _mainViewModel.ActionManager.ExecuteAction(new TransferMoneyAction(SelectedFromAccount, toAccount, TransferAmount, _currentClient.Login, _mainViewModel.Context));
-                ToAccountId = string.Empty; TransferAmount = 0;
+                _mainViewModel.ActionManager.ExecuteAction(new TransferMoneyAction(SelectedFromAccount, toAccount, amount, _currentClient.Login, _mainViewModel.Context));
+                ToAccountId = string.Empty; TransferAmount = string.Empty;
                 OnPropertyChanged(nameof(ToAccountId)); OnPropertyChanged(nameof(TransferAmount));
                 RefreshData();
                 MessageBox.Show("Перевод выполнен!");

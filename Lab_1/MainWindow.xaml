@@ -114,7 +114,7 @@
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
-                                                <GridViewColumn Header="Баланс" DisplayMemberBinding="{Binding Balance}" Width="100"/>
+                                                <GridViewColumn Header="Баланс" DisplayMemberBinding="{Binding Balance, StringFormat=\{0:F2\}}" Width="100"/>
                                                 <GridViewColumn Header="Заблокирован?" DisplayMemberBinding="{Binding IsBlocked}" Width="100"/>
                                             </GridView>
                                         </ListView.View>
@@ -142,7 +142,7 @@
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
-                                            <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="80"/>
+                                            <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount, StringFormat=\{0:F2\}}" Width="80"/>
                                         </GridView>
                                     </ListView.View>
                                 </ListView>
@@ -164,6 +164,14 @@
                                                     <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="150"/>
                                                     <GridViewColumn Header="Заявка?" DisplayMemberBinding="{Binding IsSalaryProjectRequested}" Width="70"/>
                                                     <GridViewColumn Header="Одобрен?" DisplayMemberBinding="{Binding IsSalaryProjectApproved}" Width="70"/>
+                                                    <GridViewColumn Header="ID" Width="150">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBox Text="{Binding Id, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="150"/>
                                                 </GridView>
                                             </ListView.View>
                                         </ListView>
@@ -177,7 +185,7 @@
                                             <ListView.View>
                                                 <GridView>
                                                     <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" Width="100"/>
-                                                    <GridViewColumn Header="ID Компании" DisplayMemberBinding="{Binding CompanyId}" Width="200"/>
+                                                    <GridViewColumn Header="Компания" DisplayMemberBinding="{Binding DisplayCompanyName}" Width="200"/>
                                                 </GridView>
                                             </ListView.View>
                                         </ListView>
@@ -302,7 +310,7 @@
                                                             </DataTemplate>
                                                         </GridViewColumn.CellTemplate>
                                                     </GridViewColumn>
-                                                    <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount}" Width="80"/>
+                                                    <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding Amount, StringFormat=\{0:F2\}}" Width="80"/>
                                                 </GridView>
                                             </ListView.View>
                                         </ListView>
