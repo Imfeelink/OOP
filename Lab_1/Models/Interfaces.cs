@@ -17,8 +17,8 @@ namespace Lab_1.Models
         decimal Balance { get; }
         bool IsBlocked { get; set; }
 
-        bool Deposit(decimal amount);
-        bool Withdraw(decimal amount);
+        void Deposit(decimal amount, bool force = false);
+        void Withdraw(decimal amount, bool force = false);
     }
 
     public interface IInterestBearing

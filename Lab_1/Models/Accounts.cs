@@ -26,18 +26,19 @@ namespace Lab_1.Models
             IsBlocked = false;
         }
 
-        public virtual bool Deposit(decimal amount)
+        public virtual void Deposit(decimal amount, bool force = false)
         {
-            if (IsBlocked || amount <= 0) return false;
-            Balance += amount;
-            return true;
+            if (IsBlocked && !force) throw new System.Exception("Счет получателя заблокирован.");
+            if (amount <= 0) throw new System.Exception("Сумма должна быть больше нуля.");
+            Balance = System.Math.Round(Balance + amount, 2); 
         }
 
-        public virtual bool Withdraw(decimal amount)
+        public virtual void Withdraw(decimal amount, bool force = false)
         {
-            if (IsBlocked || amount <= 0 || Balance < amount) return false;
-            Balance -= amount;
-            return true;
+            if (IsBlocked && !force) throw new System.Exception("Ваш счет заблокирован.");
+            if (amount <= 0) throw new System.Exception("Сумма должна быть больше нуля.");
+            if (Balance < amount) throw new System.Exception("Недостаточно средств на счете.");
+            Balance = System.Math.Round(Balance - amount, 2); 
         }
     }
 
@@ -56,7 +57,7 @@ namespace Lab_1.Models
             if (!IsBlocked && Balance > 0)
             {
                 decimal interest = Balance * (InterestRate / 100);
-                Balance += interest;
+                Balance = System.Math.Round(Balance + interest, 2);
             }
         }
     }

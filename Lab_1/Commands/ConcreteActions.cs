@@ -15,51 +15,45 @@ namespace Lab_1.Commands
         private readonly BankAccount _toAccount;
         public readonly decimal Amount;
         private readonly JsonDataContext _context;
-
-        //ссылка на запись в истории
-        private TransactionRecord _record; 
+        private TransactionRecord _record;
 
         public TransferMoneyAction(BankAccount from, BankAccount to, decimal amount, string initiatorLogin, JsonDataContext context)
         {
-            _fromAccount = from;
-            _toAccount = to;
-            Amount = amount;
-            InitiatorLogin = initiatorLogin;
-            _context = context;
+            _fromAccount = from; _toAccount = to; Amount = amount;
+            InitiatorLogin = initiatorLogin; _context = context;
         }
 
         public void Execute()
         {
-            if (_fromAccount.Withdraw(Amount))
+            _fromAccount.Withdraw(Amount);
+
+            try
             {
                 _toAccount.Deposit(Amount);
-
-                //запись для истории перевод
-                _record = new TransactionRecord
-                {
-                    FromAccountId = _fromAccount.Id,
-                    ToAccountId = _toAccount.Id,
-                    Amount = Amount,
-                    Description = "Перевод средств"
-                };
-                _context.Transactions.Add(_record);
             }
-            else
+            catch
             {
-                throw new Exception("Недостаточно средств или счет заблокирован.");
+                // Если положить не удалось (счет получателя заблокирован), возвращаем деньги обратно
+                _fromAccount.Deposit(Amount, force: true);
+                throw; 
             }
+
+            _record = new TransactionRecord
+            {
+                FromAccountId = _fromAccount.Id,
+                ToAccountId = _toAccount.Id,
+                Amount = Amount,
+                Description = "Перевод средств"
+            };
+            _context.Transactions.Add(_record);
         }
 
-        //отмена действия
         public void Undo()
         {
-            _toAccount.Withdraw(Amount);
-            _fromAccount.Deposit(Amount);
-
-            if (_record != null)
-            {
-                _context.Transactions.Remove(_record);
-            }
+            // force: true позволяет админу отменять переводы даже на заблокированных счетах
+            _toAccount.Withdraw(Amount, force: true);
+            _fromAccount.Deposit(Amount, force: true);
+            if (_record != null) _context.Transactions.Remove(_record);
         }
     }
 
@@ -317,7 +311,7 @@ namespace Lab_1.Commands
 
         public void Execute()
         {
-            _account.Deposit(_amount);
+            _account.Deposit(_amount, force: true);
             _record = new TransactionRecord
             {
                 FromAccountId = "ПРЕДПРИЯТИЕ",
@@ -330,7 +324,7 @@ namespace Lab_1.Commands
 
         public void Undo()
         {
-            _account.Withdraw(_amount); 
+            _account.Withdraw(_amount, force: true); 
             if (_record != null) _context.Transactions.Remove(_record);
         }
     }

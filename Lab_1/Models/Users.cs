@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace Lab_1.Models
 {
     public abstract class User
@@ -16,7 +15,7 @@ namespace Lab_1.Models
     {
         public override Role Role => Role.Client;
         public bool IsApproved { get; set; } = false; 
-        public string CompanyId { get; set; } 
+        public string CompanyId { get; set; }
     }
 
     public class Manager : User
